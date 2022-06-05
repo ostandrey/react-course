@@ -9,6 +9,8 @@ import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
 import PostFilter from "./components/PostFilter";
 import MyModal from "./components/UI/modal/MyModal";
+import {usePosts} from "./hooks/usePost";
+import axios from "axios";
 
 function App() {
     const [posts, setPosts] = useState( [
@@ -17,22 +19,19 @@ function App() {
         {id: 3, title: 'ppppp 3', body: 'qqqqq'}
     ]);
     const [filter, setFilter] = useState({sort: '', query: ''});
-    const [modal, setModal] = useState(false)
-    const sortedPosts = useMemo(() => {
-        if(filter.sort) {
-            return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]));
-        }
-        return posts;
-    }, [filter.sort, posts]);
+    const [modal, setModal] = useState(false);
 
-    const sortedAndSearchedPosts = useMemo(() => {
-        return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.query.toLowerCase()))
-    }, [filter.query, sortedPosts])
+    const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
 
     // const bodyInputRef = useRef();
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
         setModal(false)
+    }
+
+    async function fetchPosts() {
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+        setPosts(response.data)
     }
 
     const removePost = (post) => {
@@ -41,6 +40,7 @@ function App() {
 
   return (
     <div className="App">
+        <button onClick={fetchPosts}>Get posts</button>
         <MyButton
             style={{marginTop: 30}}
             onClick={() => setModal(true)}
