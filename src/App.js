@@ -12,6 +12,7 @@ import MyModal from "./components/UI/modal/MyModal";
 import {usePosts} from "./hooks/usePost";
 import axios from "axios";
 import PostService from "./API/PostService";
+import Loader from "./components/UI/loader/Loader";
 
 function App() {
     const [posts, setPosts] = useState( []);
@@ -31,8 +32,10 @@ function App() {
     }
 
     async function fetchPosts() {
+        setIsPostsLoading(true);
         const posts = await PostService.getAll();
-        setPosts(posts)
+        setPosts(posts);
+        setIsPostsLoading(false);
     }
 
     const removePost = (post) => {
@@ -56,7 +59,10 @@ function App() {
             filter={filter}
             setFilter={setFilter}
         />
-        <PostList remove={removePost} posts={sortedAndSearchedPosts} title='List of posts JS'/>
+        {isPostsLoading
+            ? <div style={{display: 'flex', justifyContent: 'center', marginTop: '50px'}}><Loader/></div>
+            : <PostList remove={removePost} posts={sortedAndSearchedPosts} title='List of posts JS'/>
+        }
         {/*<ClassCounter/>*/}
         {/*<Counter/>*/}
     </div>
