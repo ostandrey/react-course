@@ -11,15 +11,23 @@ import {usePosts} from "./hooks/usePost";
 import PostService from "./API/PostService";
 import Loader from "./components/UI/loader/Loader";
 import {useFetching} from "./hooks/useFetching";
+import {getPagesArray, getPagesCount} from "./utils/pages";
 
 function App() {
     const [posts, setPosts] = useState( []);
     const [filter, setFilter] = useState({sort: '', query: ''});
     const [modal, setModal] = useState(false);
-    const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
+    const [totalPages, setTotalPages] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const [page, setPage] = useState(1);
+    const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
+    let pagesArray = getPagesArray(totalPages);
+
     const [fetchPosts, isPostsLoading, postError] = useFetching(async () => {
-        const posts = await PostService.getAll();
-        setPosts(posts);
+        const response = await PostService.getAll(limit, page);
+        setPosts(response.data);
+        const totalCount = response.headers['x-total-count']
+        setTotalPages(getPagesCount(totalCount, limit))
     })
 
     useEffect(() => {
@@ -59,6 +67,14 @@ function App() {
             ? <div style={{display: 'flex', justifyContent: 'center', marginTop: '50px'}}><Loader/></div>
             : <PostList remove={removePost} posts={sortedAndSearchedPosts} title='List of posts JS'/>
         }
+        <div className="page__wrapper">
+            {
+                pagesArray.map(p =>
+                    <MyButton>{p}</MyButton>
+                )
+            }
+        </div>
+
         {/*<ClassCounter/>*/}
         {/*<Counter/>*/}
     </div>
