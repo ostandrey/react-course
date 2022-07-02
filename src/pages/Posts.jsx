@@ -38,7 +38,7 @@ function Posts() {
 
     useEffect(() => {
         fetchPosts(limit, page);
-    }, [page]);
+    }, [page, limit]);
 
     // const bodyInputRef = useRef();
     const createPost = (newPost) => {
@@ -70,6 +70,17 @@ function Posts() {
             <PostFilter
                 filter={filter}
                 setFilter={setFilter}
+            />
+            <MySelect
+                value={limit}
+                onChange={value => setLimit(value)}
+                defaultValue="Count of elements on page"
+                option={[
+                    {value: 5, name: '5'},
+                    {value: 10, name: '10'},
+                    {value: 25, name: '25'},
+                    {value: -1, name: 'All'},
+                ]}
             />
             {
                 postError && <h1>Error: ${postError}</h1>
